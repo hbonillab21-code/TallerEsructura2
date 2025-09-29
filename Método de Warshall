@@ -1,0 +1,62 @@
+public class Warshall {
+
+    public static void warshall(int[][] grafo) {
+        int n = grafo.length;
+        int[][] alcanzable = new int[n][n];
+
+        // Copiar la matriz de adyacencia inicial
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                alcanzable[i][j] = grafo[i][j];
+            }
+        }
+
+        // Algoritmo de Warshall
+        for (int k = 0; k < n; k++) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    alcanzable[i][j] = (alcanzable[i][j] == 1 || 
+                                        (alcanzable[i][k] == 1 && alcanzable[k][j] == 1)) ? 1 : 0;
+                }
+            }
+        }
+
+        // Mostrar matriz de alcanzabilidad
+        System.out.println("Matriz de alcanzabilidad:");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                System.out.print(alcanzable[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        // Verificar si el grafo es fuertemente conexo
+        boolean fuertementeConexo = true;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (alcanzable[i][j] == 0) {
+                    fuertementeConexo = false;
+                    break;
+                }
+            }
+        }
+
+        if (fuertementeConexo) {
+            System.out.println("\nEl grafo ES fuertemente conexo.");
+        } else {
+            System.out.println("\nEl grafo NO es fuertemente conexo.");
+        }
+    }
+
+    public static void main(String[] args) {
+        // Grafo dirigido representado como matriz de adyacencia
+        int[][] grafo = {
+            {0, 1, 0, 0}, // 0 → 1
+            {0, 0, 1, 0}, // 1 → 2
+            {1, 0, 0, 1}, // 2 → 0 y 2 → 3
+            {0, 0, 0, 0}  // 3 no tiene salida
+        };
+
+        warshall(grafo);
+    }
+}
