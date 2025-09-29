@@ -1,0 +1,127 @@
+import java.util.*;
+
+class Edge implements Comparable<Edge> {
+    int src, dest, weight;
+
+    Edge(int src, int dest, int weight) {
+        this.src = src;
+        this.dest = dest;
+        this.weight = weight;
+    }
+
+    public int compareTo(Edge compareEdge) {
+        return this.weight - compareEdge.weight;
+    }
+}
+
+class UnionFind {
+    int[] parent, rank;
+
+    UnionFind(int n) {
+        parent = new int[n];
+        rank = new int[n];
+        for (int i = 0; i < n; ++i)
+            parent[i] = i;
+    }
+
+    int find(int u) {
+        if (parent[u] != u)
+            parent[u] = find(parent[u]);
+        return parent[u];
+    }
+
+    void union(int u, int v) {
+        int rootU = find(u), rootV = find(v);
+        if (rootU != rootV) {
+            if (rank[rootU] < rank[rootV])
+                parent[rootU] = rootV;
+            else if (rank[rootU] > rank[rootV])
+                parent[rootV] = rootU;
+            else {
+                parent[rootV] = rootU;
+                rank[rootU]++;
+            }
+        }
+    }
+}
+
+public class MST {
+    static int V = 6;
+    static List<List<Edge>> adjList = new ArrayList<>();
+    static List<Edge> allEdges = new ArrayList<>();
+
+    static void addEdge(int u, int v, int weight) {
+        adjList.get(u).add(new Edge(u, v, weight));
+        adjList.get(v).add(new Edge(v, u, weight));
+        allEdges.add(new Edge(u, v, weight));
+    }
+
+    static int primMST() {
+        boolean[] inMST = new boolean[V];
+        PriorityQueue<Edge> pq = new PriorityQueue<>();
+        int totalCost = 0;
+
+        pq.add(new Edge(-1, 0, 0));
+
+        while (!pq.isEmpty()) {
+            Edge edge = pq.poll();
+            int u = edge.dest;
+
+            if (inMST[u])
+                continue;
+
+            inMST[u] = true;
+            totalCost += edge.weight;
+
+            for (Edge next : adjList.get(u)) {
+                if (!inMST[next.dest])
+                    pq.add(next);
+            }
+        }
+        return totalCost;
+    }
+
+    static int kruskalMST() {
+        Collections.sort(allEdges);
+        UnionFind uf = new UnionFind(V);
+        int totalCost = 0;
+
+        for (Edge edge : allEdges) {
+            int u = edge.src;
+            int v = edge.dest;
+
+            if (uf.find(u) != uf.find(v)) {
+                totalCost += edge.weight;
+                uf.union(u, v);
+            }
+        }
+        return totalCost;
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i < V; i++)
+            adjList.add(new ArrayList<>());
+
+        addEdge(0, 1, 6);
+        addEdge(0, 2, 1);
+        addEdge(0, 3, 5);
+        addEdge(1, 2, 2);
+        addEdge(1, 4, 5);
+        addEdge(2, 3, 2);
+        addEdge(2, 4, 6);
+        addEdge(3, 5, 4);
+        addEdge(4, 5, 3);
+
+        int primCost = primMST();
+        int kruskalCost = kruskalMST();
+
+        System.out.println("Costo MST con Prim: " + primCost);
+        System.out.println("Costo MST con Kruskal: " + kruskalCost);
+
+        if (primCost == kruskalCost) {
+            System.out.println("✅ Ambos algoritmos generan el mismo costo mínimo.");
+        } else {
+            System.out.println("❌ Diferencia detectada entre los algoritmos.");
+        }
+    }
+}
