@@ -1,0 +1,68 @@
+import java.util.*;
+
+public class CaminoMasCortoBFS {
+    
+    // Método para encontrar el camino más corto usando BFS
+    public static List<Integer> bfsCamino(int[][] grafo, int origen, int destino) {
+        int n = grafo.length; // número de nodos
+        boolean[] visitado = new boolean[n];
+        int[] predecesor = new int[n]; // Para reconstruir el camino
+        
+        Arrays.fill(predecesor, -1); // Inicialmente, ningún nodo tiene predecesor
+
+        Queue<Integer> cola = new LinkedList<>();
+        cola.add(origen);
+        visitado[origen] = true;
+
+        // BFS
+        while (!cola.isEmpty()) {
+            int actual = cola.poll();
+
+            // Si llegamos al destino, salimos del bucle
+            if (actual == destino) break;
+
+            // Explorar vecinos
+            for (int vecino : grafo[actual]) {
+                if (!visitado[vecino]) {
+                    visitado[vecino] = true;
+                    predecesor[vecino] = actual; // Guardamos el camino
+                    cola.add(vecino);
+                }
+            }
+        }
+
+        // Reconstrucción del camino desde destino hacia origen
+        List<Integer> camino = new ArrayList<>();
+        int paso = destino;
+        while (paso != -1) {
+            camino.add(paso);
+            paso = predecesor[paso];
+        }
+        Collections.reverse(camino); // Invertir para que sea origen → destino
+
+        return camino;
+    }
+
+    public static void main(String[] args) {
+        // Grafo representado como lista de adyacencia
+        int[][] grafo = {
+            {1, 2},   // vecinos de 0
+            {0, 3},   // vecinos de 1
+            {0, 3},   // vecinos de 2
+            {1, 2, 4},// vecinos de 3
+            {3, 5},   // vecinos de 4
+            {4}       // vecinos de 5
+        };
+
+        int origen = 0;
+        int destino = 5;
+
+        List<Integer> camino = bfsCamino(grafo, origen, destino);
+
+        System.out.print("Camino más corto → ");
+        for (int i = 0; i < camino.size(); i++) {
+            System.out.print(camino.get(i));
+            if (i < camino.size() - 1) System.out.print(" → ");
+        }
+    }
+}
