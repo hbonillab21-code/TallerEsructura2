@@ -1,0 +1,74 @@
+import java.util.*;
+
+class Edge {
+    int src, dest, weight;
+
+    Edge(int src, int dest, int weight) {
+        this.src = src;
+        this.dest = dest;
+        this.weight = weight;
+    }
+}
+
+public class PrimWithTrace {
+    static int V = 6;
+    static List<List<Edge>> adjList = new ArrayList<>();
+
+    static void addEdge(int u, int v, int w) {
+        adjList.get(u).add(new Edge(u, v, w));
+        adjList.get(v).add(new Edge(v, u, w));
+    }
+
+    static void primMST(int start) {
+        boolean[] visited = new boolean[V];
+        PriorityQueue<Edge> pq = new PriorityQueue<>(Comparator.comparingInt(e -> e.weight));
+        List<Edge> mstEdges = new ArrayList<>();
+        int totalCost = 0;
+
+        visited[start] = true;
+        pq.addAll(adjList.get(start));
+
+        while (!pq.isEmpty() && mstEdges.size() < V - 1) {
+            Edge edge = pq.poll();
+
+            if (visited[edge.dest])
+                continue;
+
+            visited[edge.dest] = true;
+            mstEdges.add(edge);
+            totalCost += edge.weight;
+
+            for (Edge next : adjList.get(edge.dest)) {
+                if (!visited[next.dest])
+                    pq.add(next);
+            }
+        }
+
+        System.out.println("\nInicio desde vértice: " + start);
+        System.out.println("Aristas seleccionadas en orden:");
+
+        for (Edge e : mstEdges) {
+            System.out.println(e.src + " – " + e.dest + " (peso: " + e.weight + ")");
+        }
+
+        System.out.println("Costo total del MST: " + totalCost);
+    }
+
+    public static void main(String[] args) {
+        for (int i = 0; i < V; i++)
+            adjList.add(new ArrayList<>());
+
+        addEdge(0, 1, 6);
+        addEdge(0, 2, 1);
+        addEdge(0, 3, 5);
+        addEdge(1, 2, 2);
+        addEdge(1, 4, 5);
+        addEdge(2, 3, 2);
+        addEdge(2, 4, 6);
+        addEdge(3, 5, 4);
+        addEdge(4, 5, 3);
+
+        primMST(0);  // Iniciar desde vértice 0
+        primMST(2);  // Iniciar desde vértice 2
+    }
+}
