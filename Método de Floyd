@@ -1,0 +1,86 @@
+import java.util.*;
+
+public class FloydWarshall {
+
+    static final int INF = 99999; // Un valor grande para representar "infinito"
+
+    public static void floydWarshall(int[][] grafo) {
+        int n = grafo.length;
+        int[][] dist = new int[n][n];
+        int[][] next = new int[n][n]; // Para reconstruir los caminos
+
+        // Inicializar matrices
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                dist[i][j] = grafo[i][j];
+                if (grafo[i][j] != INF && i != j) {
+                    next[i][j] = j;
+                } else {
+                    next[i][j] = -1;
+                }
+            }
+        }
+
+        // Algoritmo de Floyd-Warshall
+        for (int k = 0; k < n; k++) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                        next[i][j] = next[i][k];
+                    }
+                }
+            }
+        }
+
+        // Mostrar la matriz de distancias
+        System.out.println("Matriz de distancias más cortas:");
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (dist[i][j] == INF) {
+                    System.out.print("INF ");
+                } else {
+                    System.out.print(dist[i][j] + "   ");
+                }
+            }
+            System.out.println();
+        }
+
+        // Ejemplo: camino mínimo de 0 → 3
+        int origen = 0, destino = 3;
+        System.out.print("\nCamino mínimo de " + origen + " a " + destino + ": ");
+        imprimirCamino(next, origen, destino);
+        System.out.println("\nDistancia = " + dist[origen][destino]);
+    }
+
+    // Reconstrucción del camino usando la matriz "next"
+    public static void imprimirCamino(int[][] next, int u, int v) {
+        if (next[u][v] == -1) {
+            System.out.print("No existe camino");
+            return;
+        }
+        List<Integer> camino = new ArrayList<>();
+        camino.add(u);
+        while (u != v) {
+            u = next[u][v];
+            camino.add(u);
+        }
+        for (int i = 0; i < camino.size(); i++) {
+            System.out.print(camino.get(i));
+            if (i < camino.size() - 1) System.out.print(" → ");
+        }
+    }
+
+    public static void main(String[] args) {
+        int INF = 99999;
+        int[][] grafo = {
+            {0,   10,  INF, INF, 3},   // 0 → 1 (10), 0 → 4 (3)
+            {INF, 0,   2,   INF, 4},   // 1 → 2 (2), 1 → 4 (4)
+            {INF, INF, 0,   9,   INF}, // 2 → 3 (9)
+            {INF, INF, 7,   0,   INF}, // 3 → 2 (7)
+            {INF, 1,   8,   2,   0}    // 4 → 1 (1), 4 → 2 (8), 4 → 3 (2)
+        };
+
+        floydWarshall(grafo);
+    }
+}
