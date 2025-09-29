@@ -1,0 +1,147 @@
+import java.util.*;
+
+public class RedDeComputadoras {
+    private static int NUM_NODOS = 6;
+    private static List<List<Integer>> grafo = new ArrayList<>();
+
+    // Inicializar la red
+    static {
+        for (int i = 0; i < NUM_NODOS; i++) {
+            grafo.add(new ArrayList<>());
+        }
+    }
+
+    // 1. Agregar conexión entre dos nodos (no dirigido)
+    public static void agregarConexion(int u, int v) {
+        grafo.get(u).add(v);
+        grafo.get(v).add(u);
+    }
+
+    // 2. Verificar si un nodo puede comunicarse con otro usando BFS
+    public static boolean puedeComunicar(int origen, int destino) {
+        boolean[] visitado = new boolean[NUM_NODOS];
+        Queue<Integer> cola = new LinkedList<>();
+        cola.add(origen);
+        visitado[origen] = true;
+
+        while (!cola.isEmpty()) {
+            int actual = cola.poll();
+            if (actual == destino) return true;
+            for (int vecino : grafo.get(actual)) {
+                if (!visitado[vecino]) {
+                    visitado[vecino] = true;
+                    cola.add(vecino);
+                }
+            }
+        }
+        return false;
+    }
+
+    // 3. Encontrar el camino más corto en número de saltos usando BFS
+    public static List<Integer> caminoMasCorto(int origen, int destino) {
+        boolean[] visitado = new boolean[NUM_NODOS];
+        int[] predecesor = new int[NUM_NODOS];
+        Arrays.fill(predecesor, -1);
+
+        Queue<Integer> cola = new LinkedList<>();
+        cola.add(origen);
+        visitado[origen] = true;
+
+        while (!cola.isEmpty()) {
+            int actual = cola.poll();
+            if (actual == destino) break;
+            for (int vecino : grafo.get(actual)) {
+                if (!visitado[vecino]) {
+                    visitado[vecino] = true;
+                    predecesor[vecino] = actual;
+                    cola.add(vecino);
+                }
+            }
+        }
+
+        // Reconstrucción del camino
+        List<Integer> camino = new ArrayList<>();
+        int paso = destino;
+        while (paso != -1) {
+            camino.add(paso);
+            paso = predecesor[paso];
+        }
+        Collections.reverse(camino);
+
+        if (camino.get(0) != origen) return new ArrayList<>(); // no hay camino
+        return camino;
+    }
+
+    // --- MAIN ---
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int opcion;
+
+        do {
+            System.out.println("\n--- SIMULACIÓN RED DE COMPUTADORAS ---");
+            System.out.println("1. Agregar conexión entre dos nodos");
+            System.out.println("2. Verificar comunicación entre nodos");
+            System.out.println("3. Encontrar camino más corto");
+            System.out.println("4. Mostrar lista de adyacencia");
+            System.out.println("0. Salir");
+            System.out.print("Opción: ");
+            opcion = sc.nextInt();
+
+            switch (opcion) {
+                case 1:
+                    System.out.print("Ingrese nodo origen (0-5): ");
+                    int u = sc.nextInt();
+                    System.out.print("Ingrese nodo destino (0-5): ");
+                    int v = sc.nextInt();
+                    agregarConexion(u, v);
+                    System.out.println("Conexión agregada.");
+                    break;
+
+                case 2:
+                    System.out.print("Ingrese nodo origen (0-5): ");
+                    int a = sc.nextInt();
+                    System.out.print("Ingrese nodo destino (0-5): ");
+                    int b = sc.nextInt();
+                    if (puedeComunicar(a, b))
+                        System.out.println("Sí, " + a + " puede comunicarse con " + b);
+                    else
+                        System.out.println("No hay comunicación entre " + a + " y " + b);
+                    break;
+
+                case 3:
+                    System.out.print("Ingrese nodo origen (0-5): ");
+                    int o = sc.nextInt();
+                    System.out.print("Ingrese nodo destino (0-5): ");
+                    int d = sc.nextInt();
+                    List<Integer> camino = caminoMasCorto(o, d);
+                    if (camino.isEmpty())
+                        System.out.println("No hay camino entre " + o + " y " + d);
+                    else {
+                        System.out.print("Camino más corto: ");
+                        for (int i = 0; i < camino.size(); i++) {
+                            System.out.print(camino.get(i));
+                            if (i < camino.size() - 1) System.out.print(" → ");
+                        }
+                        System.out.println();
+                    }
+                    break;
+
+                case 4:
+                    System.out.println("Lista de adyacencia:");
+                    for (int i = 0; i < NUM_NODOS; i++) {
+                        System.out.println(i + " → " + grafo.get(i));
+                    }
+                    break;
+
+                case 0:
+                    System.out.println("Saliendo...");
+                    break;
+
+                default:
+                    System.out.println("Opción no válida.");
+            }
+        } while (opcion != 0);
+
+        sc.close();
+    }
+}
