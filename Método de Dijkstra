@@ -1,0 +1,91 @@
+import java.util.*;
+
+public class Dijkstra {
+
+    static class Arista {
+        int destino, peso;
+        Arista(int destino, int peso) {
+            this.destino = destino;
+            this.peso = peso;
+        }
+    }
+
+    // Implementación del algoritmo de Dijkstra
+    public static void dijkstra(List<List<Arista>> grafo, int origen) {
+        int n = grafo.size();
+        int[] dist = new int[n];          // Distancia mínima desde origen
+        int[] predecesor = new int[n];    // Para reconstruir caminos
+        boolean[] visitado = new boolean[n];
+
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        Arrays.fill(predecesor, -1);
+        dist[origen] = 0;
+
+        // Cola de prioridad (menor distancia primero)
+        PriorityQueue<int[]> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a[1]));
+        pq.add(new int[]{origen, 0});
+
+        while (!pq.isEmpty()) {
+            int[] actual = pq.poll();
+            int nodo = actual[0];
+
+            if (visitado[nodo]) continue;
+            visitado[nodo] = true;
+
+            // Explorar vecinos
+            for (Arista arista : grafo.get(nodo)) {
+                int vecino = arista.destino;
+                int nuevoDist = dist[nodo] + arista.peso;
+
+                if (nuevoDist < dist[vecino]) {
+                    dist[vecino] = nuevoDist;
+                    predecesor[vecino] = nodo;
+                    pq.add(new int[]{vecino, nuevoDist});
+                }
+            }
+        }
+
+        // Mostrar resultados
+        for (int i = 0; i < n; i++) {
+            if (i != origen) {
+                System.out.print("Distancia mínima de " + origen + " a " + i + " = " + dist[i]);
+                System.out.print(" | Camino: ");
+                imprimirCamino(predecesor, i);
+                System.out.println();
+            }
+        }
+    }
+
+    // Reconstrucción e impresión del camino
+    private static void imprimirCamino(int[] predecesor, int destino) {
+        List<Integer> camino = new ArrayList<>();
+        for (int v = destino; v != -1; v = predecesor[v]) {
+            camino.add(v);
+        }
+        Collections.reverse(camino);
+        for (int i = 0; i < camino.size(); i++) {
+            System.out.print(camino.get(i));
+            if (i < camino.size() - 1) System.out.print(" → ");
+        }
+    }
+
+    public static void main(String[] args) {
+        int numVertices = 5;
+        List<List<Arista>> grafo = new ArrayList<>();
+        for (int i = 0; i < numVertices; i++) grafo.add(new ArrayList<>());
+
+        // Definir el grafo dirigido con pesos
+        grafo.get(0).add(new Arista(1, 10));
+        grafo.get(0).add(new Arista(4, 3));
+        grafo.get(1).add(new Arista(2, 2));
+        grafo.get(1).add(new Arista(4, 4));
+        grafo.get(2).add(new Arista(3, 9));
+        grafo.get(3).add(new Arista(2, 7));
+        grafo.get(4).add(new Arista(1, 1));
+        grafo.get(4).add(new Arista(2, 8));
+        grafo.get(4).add(new Arista(3, 2));
+
+        int origen = 0;
+        dijkstra(grafo, origen);
+    }
+}
